@@ -32,6 +32,12 @@ Install the English Model for spaCy, version: 2.3.0
 pip install -U https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.3.0/en_core_web_sm-2.3.0.tar.gz
 ```
 
+Download and extract the [Large Movie Review Dataset](https://ai.stanford.edu/~amaas/data/sentiment/) compiled by [Andrew Maas](http://www.andrew-maas.net/):
+
+```shell
+$ curl -s https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz | tar xvz
+```
+
 ## Usage
 
 The Following will Train and Test the TEST_REVIEW review
