@@ -7,6 +7,11 @@ import random
 # Max ID for star4.json is: 75476
 # Max ID for star5.json is: 416288
 
+# adds 3 new fields to the json to help with testing
+# - originalRating : the rating the reviewer gave
+# - ourRating : the rating we assigned to the reviews
+# - modelRating : the rating that our system gives to the review
+
 print('Getting random reviews...')
 
 allReviews = []
@@ -70,6 +75,9 @@ print('\nSaving reviews...')
 with open('choosenReviews.json', 'w') as data_file:
     for element in allReviews:
         element.pop('ID', None)
+        element['originalRating'] = element.pop('overall')
+        element['ourRating'] = ""
+        element['modelRating'] = ""
         element = json.dump(element, data_file)
         data_file.write('\n')
 
