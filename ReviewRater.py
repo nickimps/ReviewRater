@@ -5,6 +5,7 @@
 #
 # Nicholas Imperius, Kristopher Pouling, Jimmy Tsang
 #
+
 import os
 import sys
 import random
@@ -22,16 +23,24 @@ doesn't matter. (The worst is sort of tedious - like Office Space with less
 humor.)
 """
 
-TEST_REVIEW2 = """
-The stated premise of the book, that strangers can improve your insight, innovation, and success, is true and is a relevant topic.  Gregerman presents a genial book that I wanted to like. OK, I did like it, but was still left disappointed because it didn't really deliver what it promised.  This isn't really a book about strangers, or being open to the influence of strangers, it's about openmindedness in general.  That's a fine topic too, but one that I have already read and thought extensively about.  That is why I was excited to find a book that would delve deep into one aspect of that -- openmindedness toward strangers.  Alas, this did not deliver.  IF you are looking for a fun and light, but still useful, book on openmindedness, in general, you should be very pleased.  This book offers a shallow look at many dimensions of openmindedness.\n\nEarly on, Gregerman writes, \"It may seem counterintuitive that strangers are to be embraced rather than ignored or avoided, but they are a necessity -- precisely because of their differences and what they know that we don't know; their objectivity and ability to be open and honest with us about the things that really matter; and their capacity to challenge us to think very differently about ourselves, the problems we face, and the nature of what is possible.  Finding and engaging the right strangers has the power to make all of us more complete, compelling, innovative, and successful.\"  This is exactly what I wanted, but Gregerman doesn't go into details on this.  He basically just tells us to talk with people.  Very general.  Indeed, the first chapter, Necessity, would have made a great article or Kindle Short, as that is where the heart of the idea is.  It's a great chapter in an otherwise average book.\n\nIn chapter 4, Innovation, Gregerman tells us to ask ourselves these 8 questions:  What's our best thinking to date?  What's the best thinking in our industry?  What's the best thinking in other industries?  What's the best thinking from popular culture?  What's the best thinking in other cultures?  What's the best insight from nature?  What's the best insight from science?  What are the best possibilities from science fiction?  OK, good questions, and Gregerman gives each a paragraph telling us why it is a good question, but does not give guidance on how to actually answer the questions.\n\nGregerman really stretches the definition of stranger.  At one point he uses fish as a \"stranger\" and discusses how the schooling behavior of fish led to innovations in accident avoiding cars.  Really, fish as strangers?  Isn't this really about openmindedness in general, and not openmindedness to strangers specifically?  Gregerman explicitly sidesteps the issue of strangers by stating that his approach is \"driven by the reality that in many ways almost all of us are strangers.\"  So, are we talking about openness to strangers, or about openness to people in general?  Why did the title of this book not refer to openmindedness rather than strangers?\n\nSome other books also offer insight into what strangers have to offer.  Check out Give And Take, by Adam Grant, which has more to offer than this book does, even though the premise is a bit different.  The Geography of Happiness may also be worth a look, though it is primarily about personal benefit, not business; but of course, these are entwined.  Another book, that Gregerman refers to is Carol Dweck's Mindset: The New Psychology of Success, which is specifically about openmindedness and closemindedness.\n\nGregerman seems like someone I would love to meet in person and talk with.  Really wish that he had examined the stated topic in more detail so that I could leave a more enthusiastic review.  Gergerman's last paragraph is a good summation of his book, so I present it here.  If this is what you actually want to read about, rather than an in-depth look at strangers, then you should enjoy this book:  \"Use these resources as a starting point for stretching your thinking or as a call to action to look in new places for ideas that could make a real difference to you and your organization.  Then commit to the regular habit of picking up a book or ebook, reading a magazine or blog, or watching a movie or TV show that takes you off of your well-beaten path -- not because everyone else around you is doing so, but because it might take you to a new and remarkable place where the possibility of a breakthrough awaits.\"
+TEST_REVIEW_POS = """
+Work perfectly in my Frigidaire fridge/ice maker. My original filter was so clogged with 
+iron/calcium from our hard water and iron pipes that my ice cubes were hollow and the water 
+dispenser was pretty much unusable. I don't know why it didn't occur to me to check the filter, 
+but I'm glad I did. I have ice again! Huzzah!
 """
 
-TEST_REVIEW3 = """
-First I'll say that I am very happy these boxes exist. I love using them. That being said this box is no better than any other. Same old cheap crap in a different form. I have no idea why these manufacturers cannot add gaskets or silicone rings to these things! I'd be willing to pay 10 dollars more if there was a gasket on the outside of the inlet and outlet, around the closer (door) and on the inside of the little lid. These things leak air like crazy. I use thin foil heat tape and wrap every possible area that might leak. The zip ties do nothing, there is nowhere for them to grip to. There is no lip to keep it from sliding off. Taped that too. The door that swings with the adjuster leaks air too. It's fine in the winter. Horrible in the summer. I also had to tape over the screen and around the lid to seal it. I'll just remove the tape for winter.\n\nI spent 40 minutes taping and testing. It's on and working like it should but one should not have to put so much time and effort into such a simple contraption. I do recommend these boxes but you have to have realistic expectations. It's not going to work without lots of fuss.
+TEST_REVIEW_NEG = """
+Doesn't work, no water flow. It's obvious from comparing the top 
+of the OEM and this filter that it's not the same.
 """
+
+TEST_REVIEW_NEUT = """
+works great but makes small ice.
+"""
+
 
 eval_list = []
-
 
 def train_model(
     training_data: list, test_data: list, iterations: int = 20
@@ -48,6 +57,7 @@ def train_model(
 
     textcat.add_label("pos")
     textcat.add_label("neg")
+    textcat.add_label("neut")
 
     # Train only textcat
     training_excluded_pipes = [
@@ -56,8 +66,8 @@ def train_model(
     with nlp.disable_pipes(training_excluded_pipes):
         optimizer = nlp.begin_training()
         # Training loop
-        print("Beginning training")
-        print("Loss\tPrecision\tRecall\tF-score")
+        print("Beginning training...")
+        print("Loss\t\tPrecision\t\tRecall\t\tF-score")
         batch_sizes = compounding(
             4.0, 32.0, 1.001
         )  # A generator that yields infinite series of input numbers
@@ -76,14 +86,14 @@ def train_model(
                     test_data=test_data,
                 )
                 print(
-                    f"{loss['textcat']}\t\t{evaluation_results['precision']}"
-                    f"\t\t{evaluation_results['recall']}"
-                    f"\t\t{evaluation_results['f-score']}"
+                    f"{loss['textcat']}\t{evaluation_results['precision']}"
+                    f"\t{evaluation_results['recall']}"
+                    f"\t{evaluation_results['f-score']}"
                 )
 
     # Save model
     with nlp.use_params(optimizer.averages):
-        nlp.to_disk("model_artifacts")
+        nlp.to_disk("model_artifacts_2") ################ _2 is the neww one
 
 
 def evaluate_model(tokenizer, textcat, test_data: list) -> dict:
@@ -118,12 +128,15 @@ def evaluate_model(tokenizer, textcat, test_data: list) -> dict:
     return {"precision": precision, "recall": recall, "f-score": f_score}
 
 
-def test_model(input_data: str = TEST_REVIEW3):
+def test_model(input_data: str = TEST_REVIEW_NEG):
     #  Load saved trained model
-    loaded_model = spacy.load("model_artifacts")
+    loaded_model = spacy.load("model_artifacts_2") ################# _2 is the neww one
     # Generate prediction
     parsed_text = loaded_model(input_data)
     # Determine prediction to return
+    print()
+    print("pos: " + str(parsed_text.cats['pos']) + "\tneg: " + str(parsed_text.cats['neg']) + "\tneut: " + str(parsed_text.cats['neut']))
+    print()
     if parsed_text.cats["pos"] > parsed_text.cats["neg"]:
         prediction = "Positive"
         score = parsed_text.cats["pos"]
@@ -135,13 +148,16 @@ def test_model(input_data: str = TEST_REVIEW3):
         f"\tScore: {score}"
     )
 
-
+#
+# - if time we can create our own training folder of reviews and sort them with 
+#   positive or negative reviews to train the system
+#
 def load_training_data(
-    data_directory: str = "aclImdb/train", split: float = 0.8, limit: int = 0
+    data_directory: str = "labelledReviews/train", split: float = 0.8, limit: int = 0
 ) -> tuple:
     # Load from files
     reviews = []
-    for label in ["pos", "neg"]:
+    for label in ["pos", "neg", "neut"]:
         labeled_directory = f"{data_directory}/{label}"
         for review in os.listdir(labeled_directory):
             if review.endswith(".txt"):
@@ -153,6 +169,7 @@ def load_training_data(
                             "cats": {
                                 "pos": "pos" == label,
                                 "neg": "neg" == label,
+                                "neut": "neut" == label,
                             }
                         }
                         reviews.append((text, spacy_label))
@@ -166,16 +183,13 @@ def load_training_data(
 
 if __name__ == "__main__":
     if sys.argv[1] == 'train':
-        train, test = load_training_data(limit=2500)
-        print("Training model")
+        print("Loading training data...")
+        train, test = load_training_data(limit=2199)
+        print("Training model...")
         train_model(train, test)
         
+    if sys.argv[1] == 'test' or sys.argv[1] == 'train':
         #df = pd.DataFrame(eval_list)
         #pd.DataFrame.plot(df)
-        print("Testing model")
-        test_model()
-    elif sys.argv[1] == 'test':
-        #df = pd.DataFrame(eval_list)
-        #pd.DataFrame.plot(df)
-        print("Testing model")
+        print("Testing model...")
         test_model()
