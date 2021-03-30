@@ -22,7 +22,7 @@ for file in os.listdir(batchName):
         file_path = f"{batchName}\\{file}"
         with open(file_path, 'r') as data_file:
             print('\n' + data_file.read())
-            folder = input("Folder: ")
+            folder = input("Rating: ")
     if folder == '1':
         shutil.move(file_path, one)
     elif folder == '2':
