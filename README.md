@@ -43,9 +43,9 @@ python ReviewRater.py test
 ```
 
 # To Label Reviews For Training
-The batches contain **200 reviews** each, in .txt files.<br>
-The labelled folder contains a hierarchy of folders that will store the rating given to each one, there is a folder called one, two, etc..<br>
-1. Download and unzip one of the batches and the labelled.zip file into a folder.<br>
+The batches.zip contains 25 batches each containing **200 reviews**, in .txt files.<br>
+The labelled.zip is a folder that contains a hierarchy of folders that will store the rating given to each one, there is a folder called one, two, etc..<br>
+1. Download and unzip the batches.zip and the labelled.zip file into a folder.<br>
 2. Download the labeller.py into the same folder.<br>
 3. To run the labeller.py program: <br>
 _NOTE: you will need to change the file path in labeller.py to the current location on your PC, let me know if it still isnt working_
