@@ -6,7 +6,7 @@ import shutil
 
 ## change this to the folder that the folder of .txt are saved too, adjust batch1 to batchX depending
 ## on the one that you have.
-batchName = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\batch1'
+batchName = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\batch5'
 
 ## location of the one, two, three... folders
 one = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\labelled\\one'
@@ -23,15 +23,15 @@ for file in os.listdir(batchName):
         with open(file_path, 'r') as data_file:
             print('\n' + data_file.read())
             folder = input("Folder: ")
-    if folder == 'one':
+    if folder == '1':
         shutil.move(file_path, one)
-    elif folder == 'two':
+    elif folder == '2':
         shutil.move(file_path, two)
-    elif folder == 'three':
+    elif folder == '3':
         shutil.move(file_path, three)
-    elif folder == 'four':
+    elif folder == '4':
         shutil.move(file_path, four)
-    elif folder == 'five':
+    elif folder == '5':
         shutil.move(file_path, five)
     else:
         print("you didn't enter valid input, go back later")
