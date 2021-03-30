@@ -3,7 +3,7 @@
 #
 # Review Rater Project - analyzes sentiment in reviews
 #
-# Nicholas Imperius, Kristopher Pouling, Jimmy Tsang
+# Nicholas Imperius, Kristopher Poulin, Jimmy Tsang
 #
 
 import os
@@ -44,6 +44,48 @@ Quality product that upon first glance appears to be a better
 made replacement than the original.
 """
 
+TEST_REVIEW_ONE = """
+We just moved in a house with a 30" Kenmore elite gas cooktop and there are several negative 
+things about it.  The worst thing is that both the front plate and the first knob that controls 
+the temp get hot enough to literally burn you if touched.  We have been told that is a safety issue, 
+either gas is leaking out or there is an electrical short.  The second thing is that one of the front 
+burners went always turn on when you turn the knob.  Some times it only clicks and then you turn it off 
+and on again and a big flame shoots out.
+Sears will not do anything about it, they only want to sell you a new one.  NEVER BUY A KENMORE!
+"""
+
+TEST_REVIEW_TWO = """
+Loose filtration media in the filter, resulted in having to replace the water inlet valve in my refrigerator.
+
+Upon replacing the filter, my ice maker fill valve would not fully shut off.  Water continued to drip into the 
+ice tray, overflowing into the freezer.  This resulted in having to replace the water inlet valve.
+
+Now that the valve has been replaced, the filter does a great job at making the water taste good.  But any 
+savings I had by buying this filter, instead of a Maytag OEM filter, was lost three times over by the expense 
+of having to replace the valve.
+
+If you decide to buy this filter, be very thorough in rinsing it out before install, taking care to assure 
+that no loose debris comes out.
+
+Personally, next time I will buy the Maytag filter.
+"""
+
+TEST_REVIEW_THREE = """
+I purchased this fridge from another vendor and I was happy with it except it died after about 2 years of use. 
+I looked into getting it repaired, but the person I spoke to said it would be more cost effective to replace it 
+due to the labor charges. I saw on the Target website that another person had the same experience, so it seems 
+the longevity of this product is in question.
+"""
+
+TEST_REVIEW_FOUR = """
+I love this little guy. It washes clothes well. They come out practical dry out of the spinner. It amazed me.
+"""
+
+TEST_REVIEW_FIVE = """
+Decided to fix my dryer on my own instead of shelling out over $100 for a repair. With this part and the 
+Thermostat Fuse I did the fix for $20. It has been several months and the dryer is still working like new.
+"""
+
 
 eval_list = []
 
@@ -60,9 +102,11 @@ def train_model(
     else:
         textcat = nlp.get_pipe("textcat")
 
-    textcat.add_label("pos")
-    textcat.add_label("neg")
-    textcat.add_label("neut")
+    textcat.add_label("one")
+    textcat.add_label("two")
+    textcat.add_label("three")
+    textcat.add_label("four")
+    textcat.add_label("five")
 
     # Train only textcat
     training_excluded_pipes = [
@@ -73,9 +117,7 @@ def train_model(
         # Training loop
         print("Beginning training...")
         print("Loss\t\tPrecision\t\tRecall\t\tF-score")
-        batch_sizes = compounding(
-            4.0, 32.0, 1.001
-        )  # A generator that yields infinite series of input numbers
+        batch_sizes = compounding( 4.0, 32.0, 1.001 )  # A generator that yields infinite series of input numbers
         for i in range(iterations):
             print(f"Training iteration {i}")
             loss = {}
@@ -98,7 +140,7 @@ def train_model(
 
     # Save model
     with nlp.use_params(optimizer.averages):
-        nlp.to_disk("model_artifacts_2") ################ _2 is the neww one
+        nlp.to_disk("model_artifacts_3") ################
 
 
 def evaluate_model(tokenizer, textcat, test_data: list) -> dict:
@@ -111,18 +153,60 @@ def evaluate_model(tokenizer, textcat, test_data: list) -> dict:
     for i, review in enumerate(textcat.pipe(reviews)):
         true_label = labels[i]["cats"]
         for predicted_label, score in review.cats.items():
-            # Every cats dictionary includes both labels, you can get all
-            # the info you need with just the pos label
-            if predicted_label == "neg" or predicted_label == "neut":
-                continue
-            if score >= 0.5 and true_label["pos"]:
-                true_positives += 1
-            elif score >= 0.5 and true_label["neg"]:
-                false_positives += 1
-            elif score < 0.5 and true_label["neg"]:
-                true_negatives += 1
-            elif score < 0.5 and true_label["pos"]:
-                false_negatives += 1
+            #print("  pl: " + str(predicted_label))
+            #print("  sc: " + str(score))
+            #print("  tl: " + str(true_label))
+            if true_label['one'] and predicted_label == 'one':
+                if score >= 0.5:
+                    true_positives += 1
+                else:
+                    false_positives += 1
+            elif true_label['one'] and predicted_label != 'one':
+                if score >= 0.5:
+                    true_negatives += 1
+                else:
+                    false_negatives += 1
+            elif true_label['two'] and predicted_label == 'two':
+                if score >= 0.5:
+                    true_positives += 1
+                else:
+                    false_positives += 1
+            elif true_label['two'] and predicted_label != 'two':
+                if score >= 0.5:
+                    true_negatives += 1
+                else:
+                    false_negatives += 1
+            elif true_label['three'] and predicted_label == 'three':
+                if score >= 0.5:
+                    true_positives += 1
+                else:
+                    false_positives += 1
+            elif true_label['three'] and predicted_label != 'three':
+                if score >= 0.5:
+                    true_negatives += 1
+                else:
+                    false_negatives += 1
+            elif true_label['four'] and predicted_label == 'four':
+                if score >= 0.5:
+                    true_positives += 1
+                else:
+                    false_positives += 1
+            elif true_label['four'] and predicted_label != 'four':
+                if score >= 0.5:
+                    true_negatives += 1
+                else:
+                    false_negatives += 1
+            elif true_label['five'] and predicted_label == 'five':
+                if score >= 0.5:
+                    true_positives += 1
+                else:
+                    false_positives += 1
+            elif true_label['five'] and predicted_label != 'five':
+                if score >= 0.5:
+                    true_negatives += 1
+                else:
+                    false_negatives += 1
+                    
     precision = true_positives / (true_positives + false_positives)
     recall = true_positives / (true_positives + false_negatives)
 
@@ -133,24 +217,43 @@ def evaluate_model(tokenizer, textcat, test_data: list) -> dict:
     return {"precision": precision, "recall": recall, "f-score": f_score}
 
 
-def test_model(input_data: str = TEST_REVIEW_NEUT):
+def test_model(input_data: str = TEST_REVIEW_NEG):
     #  Load saved trained model
-    loaded_model = spacy.load("model_artifacts_2") ################# _2 is the neww one
+    loaded_model = spacy.load("model_artifacts_3") # 1 - pos, neg , 2 - pos, neut, neg , 3 - one,..., five 
+    
+    # removes stopwords from input data
+    nlp = spacy.load("en_core_web_sm")
+    new_input_data = ' '.join([token.text_with_ws for token in nlp(input_data) if not token.is_stop])
+    
+    print("Text w/o stopwords: " + new_input_data)
+    
     # Generate prediction
-    parsed_text = loaded_model(input_data)
+    parsed_text = loaded_model(new_input_data)
     # Determine prediction to return
     print()
-    print("pos: " + str(parsed_text.cats['pos']) + "\tneg: " + str(parsed_text.cats['neg']) + "\tneut: " + str(parsed_text.cats['neut']))
-    print()
-    if parsed_text.cats["pos"] > parsed_text.cats["neg"] and parsed_text.cats["pos"] > parsed_text.cats["neut"]:
-        prediction = "Positive"
-        score = parsed_text.cats["pos"]
-    elif parsed_text.cats["neg"] > parsed_text.cats["pos"] and parsed_text.cats["neg"] > parsed_text.cats["neut"]:
-        prediction = "Negative"
-        score = parsed_text.cats["neg"]
+    print("one: " + str(parsed_text.cats['one']))
+    print("two: " + str(parsed_text.cats['two']))
+    print("three: " + str(parsed_text.cats['three']))
+    print("four: " + str(parsed_text.cats['four']))
+    print("five: " + str(parsed_text.cats['five']))
+    print() 
+    
+    if parsed_text.cats["one"] > parsed_text.cats["two"] and parsed_text.cats["one"] > parsed_text.cats["three"] and parsed_text.cats["one"] > parsed_text.cats["four"] and parsed_text.cats["one"] > parsed_text.cats["five"]:
+        prediction = "1 Star"
+        score = parsed_text.cats["one"]
+    elif parsed_text.cats["two"] > parsed_text.cats["one"] and parsed_text.cats["two"] > parsed_text.cats["three"] and parsed_text.cats["two"] > parsed_text.cats["four"] and parsed_text.cats["two"] > parsed_text.cats["five"]:
+        prediction = "2 Star"
+        score = parsed_text.cats["two"]
+    elif parsed_text.cats["three"] > parsed_text.cats["one"] and parsed_text.cats["three"] > parsed_text.cats["two"] and parsed_text.cats["three"] > parsed_text.cats["four"] and parsed_text.cats["three"] > parsed_text.cats["five"]:
+        prediction = "3 Star"
+        score = parsed_text.cats["three"]
+    elif parsed_text.cats["four"] > parsed_text.cats["one"] and parsed_text.cats["four"] > parsed_text.cats["two"] and parsed_text.cats["four"] > parsed_text.cats["three"] and parsed_text.cats["four"] > parsed_text.cats["five"]:
+        prediction = "4 Star"
+        score = parsed_text.cats["four"]
     else:
-        prediction = "Neutral"
-        score = parsed_text.cats["neut"]
+        prediction = "5 Star"
+        score = parsed_text.cats["five"] 
+
     print(
         f"Review text: {input_data}\nPredicted sentiment: {prediction}"
         f"\tScore: {score}"
@@ -161,11 +264,11 @@ def test_model(input_data: str = TEST_REVIEW_NEUT):
 #   positive or negative reviews to train the system
 #
 def load_training_data(
-    data_directory: str = "labelledReviews/train", split: float = 0.8, limit: int = 0
+    data_directory: str = "dataset/train", split: float = 0.8, limit: int = 0
 ) -> tuple:
     # Load from files
     reviews = []
-    for label in ["pos", "neg", "neut"]:
+    for label in ["one", "two", "three", "four", "five"]:
         labeled_directory = f"{data_directory}/{label}"
         for review in os.listdir(labeled_directory):
             if review.endswith(".txt"):
@@ -175,9 +278,11 @@ def load_training_data(
                     if text.strip():
                         spacy_label = {
                             "cats": {
-                                "pos": "pos" == label,
-                                "neg": "neg" == label,
-                                "neut": "neut" == label,
+                                "one": "one" == label,
+                                "two": "two" == label,
+                                "three": "three" == label,
+                                "four": "four" == label,
+                                "five": "five" == label,
                             }
                         }
                         reviews.append((text, spacy_label))
@@ -192,7 +297,7 @@ def load_training_data(
 if __name__ == "__main__":
     if sys.argv[1] == 'train':
         print("Loading training data...")
-        train, test = load_training_data(limit=2199)
+        train, test = load_training_data(limit=2000)
         print("Training model...")
         train_model(train, test)
         
