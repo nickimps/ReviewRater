@@ -25,7 +25,6 @@ Install spaCy, version: 2.3.5
 ```shell
 pip install -U spacy==2.3.5
 ```
-
 Install the English Model for spaCy, version: 2.3.0
 
 ```shell
@@ -44,12 +43,14 @@ python ReviewRater.py test
 ```
 
 # To Label Reviews For Training
-Download and unzip one of the batches and the labelled.zip file into a folder. Download the labeller.py into the same folder.
-The batches contain **200 reviews** each, in .txt files.
-The labelled folder contains a hierarchy of folders that will store the rating given to each one, there is a folder called one, two, etc..
-To run the labeller.py program:
+The batches contain **200 reviews** each, in .txt files.<br>
+The labelled folder contains a hierarchy of folders that will store the rating given to each one, there is a folder called one, two, etc..<br>
+1. Download and unzip one of the batches and the labelled.zip file into a folder.<br>
+2. Download the labeller.py into the same folder.<br>
+3. To run the labeller.py program: <br>
+_NOTE: you will need to change the file path in labeller.py to the current location on your PC, let me know if it still isnt working_
 ```shell
 python labeller.py
 ```
-You will be prompted with a review and input. For the input type the word one, two, three, four, or five to indicate what rating you give the review, this will move it from the batch folder to the given folder in the labelled hierarchy. You can stop the program (CTRL + C) and resume later, it will not restart all the reviews - just whatever you have left.
-_NOTE: you will need to change the file path in labeller.py to the current location on your PC, let me know if it still isnt working_
+You will be prompted with a review and input. For the input type the word one, two, three, four, or five to indicate what rating you give the review, this will move it from the batch folder to the given folder in the labelled hierarchy. You can stop the program (CTRL + C) and resume later, it will not restart all the reviews - just whatever you have left.<br>
+
