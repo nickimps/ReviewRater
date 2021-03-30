@@ -39,6 +39,11 @@ TEST_REVIEW_NEUT = """
 works great but makes small ice.
 """
 
+TEST_REVIEW_NEUT_2 = """
+Quality product that upon first glance appears to be a better 
+made replacement than the original.
+"""
+
 
 eval_list = []
 
@@ -108,7 +113,7 @@ def evaluate_model(tokenizer, textcat, test_data: list) -> dict:
         for predicted_label, score in review.cats.items():
             # Every cats dictionary includes both labels, you can get all
             # the info you need with just the pos label
-            if predicted_label == "neg":
+            if predicted_label == "neg" or predicted_label == "neut":
                 continue
             if score >= 0.5 and true_label["pos"]:
                 true_positives += 1
@@ -128,7 +133,7 @@ def evaluate_model(tokenizer, textcat, test_data: list) -> dict:
     return {"precision": precision, "recall": recall, "f-score": f_score}
 
 
-def test_model(input_data: str = TEST_REVIEW_NEG):
+def test_model(input_data: str = TEST_REVIEW_NEUT):
     #  Load saved trained model
     loaded_model = spacy.load("model_artifacts_2") ################# _2 is the neww one
     # Generate prediction
@@ -137,12 +142,15 @@ def test_model(input_data: str = TEST_REVIEW_NEG):
     print()
     print("pos: " + str(parsed_text.cats['pos']) + "\tneg: " + str(parsed_text.cats['neg']) + "\tneut: " + str(parsed_text.cats['neut']))
     print()
-    if parsed_text.cats["pos"] > parsed_text.cats["neg"]:
+    if parsed_text.cats["pos"] > parsed_text.cats["neg"] and parsed_text.cats["pos"] > parsed_text.cats["neut"]:
         prediction = "Positive"
         score = parsed_text.cats["pos"]
-    else:
+    elif parsed_text.cats["neg"] > parsed_text.cats["pos"] and parsed_text.cats["neg"] > parsed_text.cats["neut"]:
         prediction = "Negative"
         score = parsed_text.cats["neg"]
+    else:
+        prediction = "Neutral"
+        score = parsed_text.cats["neut"]
     print(
         f"Review text: {input_data}\nPredicted sentiment: {prediction}"
         f"\tScore: {score}"
