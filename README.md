@@ -54,3 +54,30 @@ python labeller.py
 ```
 You will be prompted with a review and input. For the input enter the number of the rating you wish to give it, this will move it from the batch folder to the given folder in the labelled hierarchy. You can stop the program (CTRL + C) and resume later, it will not restart all the reviews - just whatever you have left.<br>
 
+## Batch Tracker
+- [x] batch1
+- [ ] batch2
+- [ ] batch3
+- [ ] batch4
+- [ ] batch5
+- [ ] batch6
+- [ ] batch7
+- [ ] batch8
+- [ ] batch9
+- [ ] batch10
+- [ ] batch11
+- [ ] batch12
+- [ ] batch13
+- [ ] batch14
+- [ ] batch15
+- [ ] batch16
+- [ ] batch17
+- [ ] batch18
+- [ ] batch19
+- [ ] batch20
+- [ ] batch21
+- [ ] batch22
+- [ ] batch23
+- [ ] batch24
+- [ ] batch25
+
