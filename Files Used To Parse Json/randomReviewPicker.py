@@ -76,6 +76,224 @@ random.shuffle(star2Data)
 random.shuffle(star4Data)
 random.shuffle(star1Data)
 
+print('\nSaving reviews...')
+
+"""
+# to create the batches for us to review
+num = 1
+name = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\batch1'
+name2 = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\batch2'
+name3 = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\batch3'
+name4 = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\batch4'
+name5 = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\batch5'
+for element in allReviews:
+    if num <= 200:
+        with open(os.path.join(name, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', '""')
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    elif num <= 400:
+        with open(os.path.join(name2, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', '""')
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    elif num <= 600:
+        with open(os.path.join(name3, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', '""')
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    elif num <= 800:
+        with open(os.path.join(name4, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', '""')
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    elif num <= 1000:
+        with open(os.path.join(name5, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', '""')
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+"""
+
+"""
+# this creates a folder for each given star rating
+print("Creating one....")
+num = 1
+name = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\train\\one\\'
+name2 = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\test\\one\\'
+for element in star1Data:
+    if num < 200:
+        with open(os.path.join(name2, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    elif num < 2200:
+        with open(os.path.join(name, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    else:
+        break
+print("One done.")
+
+print("Creating two....")
+num = 1
+name = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\train\\two\\'
+name2 = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\test\\two\\'
+for element in star2Data:
+    if num < 200:
+        with open(os.path.join(name2, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    elif num < 2200:
+        with open(os.path.join(name, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    else:
+        break
+print("Two done.")
+
+print("Creating three....")
+num = 1
+name = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\train\\three\\'
+name2 = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\test\\three\\'
+for element in star3Data:
+    if num < 200:
+        with open(os.path.join(name2, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    elif num < 2200:
+        with open(os.path.join(name, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    else:
+        break
+print("Three done.")
+
+print("Creating four....")
+num = 1
+name = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\train\\four\\'
+name2 = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\test\\four\\'
+for element in star4Data:
+    if num < 200:
+        with open(os.path.join(name2, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    elif num < 2200:
+        with open(os.path.join(name, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    else:
+        break
+print("Four done.")
+
+print("Creating five....")
+num = 1
+name = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\train\\five\\'
+name2 = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\dataset\\test\\five\\'
+for element in star5Data:
+    if num < 200:
+        with open(os.path.join(name2, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    elif num < 2200:
+        with open(os.path.join(name, str(num) + '.txt'), 'w') as data_file:
+            review = element.pop('reviewText', None)
+            while True:
+                if review is None:
+                    review = element.pop('reviewText', '""')
+                else:
+                    break
+            if '"' in review:
+                review = review.replace('""', '')
+            data_file.write(review)
+            num += 1
+    else:
+        break
+print("Five done.")
+"""
+
+# this created the pos, neut and neg folders
+"""
 neutReviews = []
 for element in star2Data:
     neutReviews.append(element)
@@ -83,10 +301,8 @@ for element in star3Data:
     neutReviews.append(element)
 for element in star4Data:
     neutReviews.append(element)
-
 random.shuffle(neutReviews)
 
-print('\nSaving reviews...')
 
 num = 1
 
@@ -181,7 +397,9 @@ for element in neutReviews:
             num += 1
     else:
         break
-        
+"""
+    
+# This one creates the choosenReviews file    
 """
 with open('choosenReviews.json', 'w') as data_file:
     for element in allReviews:
