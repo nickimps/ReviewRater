@@ -6,7 +6,8 @@ import shutil
 
 ## change this to the folder that the folder of .txt are saved too, adjust batch1 to batchX depending
 ## on the one that you have.
-batchName = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\batch5'
+## also change the batch number to the one that you are going to work on on this line too
+batchName = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\batch1'
 
 ## location of the one, two, three... folders
 one = 'C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Personally Labelled\\labelled\\one'
