@@ -52,5 +52,5 @@ _NOTE: you will need to change the file path in labeller.py to the current locat
 ```shell
 python labeller.py
 ```
-You will be prompted with a review and input. For the input type the word one, two, three, four, or five to indicate what rating you give the review, this will move it from the batch folder to the given folder in the labelled hierarchy. You can stop the program (CTRL + C) and resume later, it will not restart all the reviews - just whatever you have left.<br>
+You will be prompted with a review and input. For the input enter the number of the rating you wish to give it, this will move it from the batch folder to the given folder in the labelled hierarchy. You can stop the program (CTRL + C) and resume later, it will not restart all the reviews - just whatever you have left.<br>
 
