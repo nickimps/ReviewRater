@@ -59,7 +59,7 @@ When you have completed or started working on a batch click the edit button on t
 - [ ] batch1
 - [ ] batch2
 - [ ] batch3
-- [ ] batch4
+- [x] batch4
 - [x] batch5
 - [x] batch6
 - [x] batch7
