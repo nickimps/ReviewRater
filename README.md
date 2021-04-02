@@ -58,7 +58,7 @@ You will be prompted with a review and input. For the input enter the number of 
 When you have completed or started working on a batch click the edit button on this page and put an 'x' in the braces so we know what has been done.
 - [ ] batch1
 - [ ] batch2
-- [ ] batch3
+- [x] batch3
 - [x] batch4
 - [x] batch5
 - [x] batch6
