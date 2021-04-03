@@ -70,7 +70,7 @@ When you have completed or started working on a batch click the edit button on t
 - [ ] batch12
 - [ ] batch13
 - [ ] batch14
-- [ ] batch15
+- [x] batch15
 - [ ] batch16
 - [ ] batch17
 - [ ] batch18
@@ -80,5 +80,4 @@ When you have completed or started working on a batch click the edit button on t
 - [ ] batch22
 - [ ] batch23
 - [ ] batch24
-- [ ] batch25
-
+- [x] batch25
