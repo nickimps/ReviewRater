@@ -56,7 +56,7 @@ You will be prompted with a review and input. For the input enter the number of 
 
 ## Batch Tracker
 When you have completed or started working on a batch click the edit button on this page and put an 'x' in the braces so we know what has been done.
-- [ ] batch1
+- [x] batch1
 - [x] batch2
 - [x] batch3
 - [x] batch4
