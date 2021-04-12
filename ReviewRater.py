@@ -6,88 +6,12 @@
 # Nicholas Imperius, Kristopher Poulin, Jimmy Tsang
 #
 
-import os
+import os, json
 import sys
 import random
 import spacy
 from spacy.util import minibatch, compounding
-#import pandas as pd
-
-
-TEST_REVIEW = """
-Transcendently beautiful in moments outside the office, it seems almost
-sitcom-like in those scenes. When Toni Colette walks out and ponders
-life silently, it's gorgeous.<br /><br />The movie doesn't seem to decide
-whether it's slapstick, farce, magical realism, or drama, but the best of it
-doesn't matter. (The worst is sort of tedious - like Office Space with less
-humor.)
-"""
-
-TEST_REVIEW_POS = """
-Work perfectly in my Frigidaire fridge/ice maker. My original filter was so clogged with 
-iron/calcium from our hard water and iron pipes that my ice cubes were hollow and the water 
-dispenser was pretty much unusable. I don't know why it didn't occur to me to check the filter, 
-but I'm glad I did. I have ice again! Huzzah!
-"""
-
-TEST_REVIEW_NEG = """
-Doesn't work, no water flow. It's obvious from comparing the top 
-of the OEM and this filter that it's not the same.
-"""
-
-TEST_REVIEW_NEUT = """
-works great but makes small ice.
-"""
-
-TEST_REVIEW_NEUT_2 = """
-Quality product that upon first glance appears to be a better 
-made replacement than the original.
-"""
-
-TEST_REVIEW_ONE = """
-We just moved in a house with a 30" Kenmore elite gas cooktop and there are several negative 
-things about it.  The worst thing is that both the front plate and the first knob that controls 
-the temp get hot enough to literally burn you if touched.  We have been told that is a safety issue, 
-either gas is leaking out or there is an electrical short.  The second thing is that one of the front 
-burners went always turn on when you turn the knob.  Some times it only clicks and then you turn it off 
-and on again and a big flame shoots out.
-Sears will not do anything about it, they only want to sell you a new one.  NEVER BUY A KENMORE!
-"""
-
-TEST_REVIEW_TWO = """
-Loose filtration media in the filter, resulted in having to replace the water inlet valve in my refrigerator.
-
-Upon replacing the filter, my ice maker fill valve would not fully shut off.  Water continued to drip into the 
-ice tray, overflowing into the freezer.  This resulted in having to replace the water inlet valve.
-
-Now that the valve has been replaced, the filter does a great job at making the water taste good.  But any 
-savings I had by buying this filter, instead of a Maytag OEM filter, was lost three times over by the expense 
-of having to replace the valve.
-
-If you decide to buy this filter, be very thorough in rinsing it out before install, taking care to assure 
-that no loose debris comes out.
-
-Personally, next time I will buy the Maytag filter.
-"""
-
-TEST_REVIEW_THREE = """
-I purchased this fridge from another vendor and I was happy with it except it died after about 2 years of use. 
-I looked into getting it repaired, but the person I spoke to said it would be more cost effective to replace it 
-due to the labor charges. I saw on the Target website that another person had the same experience, so it seems 
-the longevity of this product is in question.
-"""
-
-TEST_REVIEW_FOUR = """
-I love this little guy. It washes clothes well. They come out practical dry out of the spinner. It amazed me.
-"""
-
-TEST_REVIEW_FIVE = """
-Decided to fix my dryer on my own instead of shelling out over $100 for a repair. With this part and the 
-Thermostat Fuse I did the fix for $20. It has been several months and the dryer is still working like new.
-"""
-
-
-eval_list = []
+import pandas as pd
 
 def train_model(
     training_data: list, test_data: list, iterations: int = 20
@@ -116,7 +40,7 @@ def train_model(
         optimizer = nlp.begin_training()
         # Training loop
         print("Beginning training...")
-        print("Loss\t\tPrecision\t\tRecall\t\tF-score")
+        print("Loss\t\t\tPrecision\t\tRecall\t\t\tF-score")
         batch_sizes = compounding( 4.0, 32.0, 1.001 )  # A generator that yields infinite series of input numbers
         for i in range(iterations):
             print(f"Training iteration {i}")
@@ -140,132 +64,325 @@ def train_model(
 
     # Save model
     with nlp.use_params(optimizer.averages):
-        nlp.to_disk("model_artifacts_3") ################
+        nlp.to_disk("ReviewerLabelledModel_3") # MODEL NAME
 
 
 def evaluate_model(tokenizer, textcat, test_data: list) -> dict:
     reviews, labels = zip(*test_data)
     reviews = (tokenizer(review) for review in reviews)
     true_positives = 0
-    false_positives = 1e-8  # Can't be 0 because of presence in denominator
+    false_positives = 1e-8  # Can't be 0
     true_negatives = 0
     false_negatives = 1e-8
+    fScoreArray = [[0, 0, 0, 0, 0, 0], # Columns are true label and rows are predicted labels
+                   [0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0]]
+                   
     for i, review in enumerate(textcat.pipe(reviews)):
         true_label = labels[i]["cats"]
         for predicted_label, score in review.cats.items():
-            #print("  pl: " + str(predicted_label))
-            #print("  sc: " + str(score))
-            #print("  tl: " + str(true_label))
-            if true_label['one'] and predicted_label == 'one':
-                if score >= 0.5:
-                    true_positives += 1
-                else:
-                    false_positives += 1
-            elif true_label['one'] and predicted_label != 'one':
-                if score >= 0.5:
-                    true_negatives += 1
-                else:
-                    false_negatives += 1
-            elif true_label['two'] and predicted_label == 'two':
-                if score >= 0.5:
-                    true_positives += 1
-                else:
-                    false_positives += 1
-            elif true_label['two'] and predicted_label != 'two':
-                if score >= 0.5:
-                    true_negatives += 1
-                else:
-                    false_negatives += 1
-            elif true_label['three'] and predicted_label == 'three':
-                if score >= 0.5:
-                    true_positives += 1
-                else:
-                    false_positives += 1
-            elif true_label['three'] and predicted_label != 'three':
-                if score >= 0.5:
-                    true_negatives += 1
-                else:
-                    false_negatives += 1
-            elif true_label['four'] and predicted_label == 'four':
-                if score >= 0.5:
-                    true_positives += 1
-                else:
-                    false_positives += 1
-            elif true_label['four'] and predicted_label != 'four':
-                if score >= 0.5:
-                    true_negatives += 1
-                else:
-                    false_negatives += 1
-            elif true_label['five'] and predicted_label == 'five':
-                if score >= 0.5:
-                    true_positives += 1
-                else:
-                    false_positives += 1
-            elif true_label['five'] and predicted_label != 'five':
-                if score >= 0.5:
-                    true_negatives += 1
-                else:
-                    false_negatives += 1
-                    
-    precision = true_positives / (true_positives + false_positives)
-    recall = true_positives / (true_positives + false_negatives)
+            if true_label['one']:
+                if predicted_label == 'one':
+                    fScoreArray[1][1] += 1
+                elif predicted_label == 'two':
+                    fScoreArray[2][1] += 1
+                elif predicted_label == 'three':
+                    fScoreArray[3][1] += 1
+                elif predicted_label == 'four':
+                    fScoreArray[4][1] += 1
+                elif predicted_label == 'five':
+                    fScoreArray[5][1] += 1
+            elif true_label['two']:
+                if predicted_label == 'one':
+                    fScoreArray[1][2] += 1
+                elif predicted_label == 'two':
+                    fScoreArray[2][2] += 1
+                elif predicted_label == 'three':
+                    fScoreArray[3][2] += 1
+                elif predicted_label == 'four':
+                    fScoreArray[4][2] += 1
+                elif predicted_label == 'five':
+                    fScoreArray[5][2] += 1
+            elif true_label['three']:
+                if predicted_label == 'one':
+                    fScoreArray[1][3] += 1
+                elif predicted_label == 'two':
+                    fScoreArray[2][3] += 1
+                elif predicted_label == 'three':
+                    fScoreArray[3][3] += 1
+                elif predicted_label == 'four':
+                    fScoreArray[4][3] += 1
+                elif predicted_label == 'five':
+                    fScoreArray[5][3] += 1
+            elif true_label['four']:
+                if predicted_label == 'one':
+                    fScoreArray[1][4] += 1
+                elif predicted_label == 'two':
+                    fScoreArray[2][4] += 1
+                elif predicted_label == 'three':
+                    fScoreArray[3][4] += 1
+                elif predicted_label == 'four':
+                    fScoreArray[4][4] += 1
+                elif predicted_label == 'five':
+                    fScoreArray[5][4] += 1
+            elif true_label['five']:
+                if predicted_label == 'one':
+                    fScoreArray[1][5] += 1
+                elif predicted_label == 'two':
+                    fScoreArray[2][5] += 1
+                elif predicted_label == 'three':
+                    fScoreArray[3][5] += 1
+                elif predicted_label == 'four':
+                    fScoreArray[4][5] += 1
+                elif predicted_label == 'five':
+                    fScoreArray[5][5] += 1
+    
+    #Calculate each rating score
+    precision1 = fScoreArray[1][1] / (fScoreArray[1][1] + fScoreArray[1][2] + fScoreArray[1][3] + fScoreArray[1][4] + fScoreArray[1][5])
+    recall1 = fScoreArray[1][1] / (fScoreArray[1][1] + fScoreArray[2][1] + fScoreArray[3][1] + fScoreArray[4][1] + fScoreArray[5][1])
+    fScore1 = 2 * (precision1 * recall1) / (precision1 + recall1)
+    #print("\t1: prec: " + str(precision1) + " recall: " + str(recall1) + " f-score: " + str(fScore1))
+    
+    precision2 = fScoreArray[2][2] / (fScoreArray[2][1] + fScoreArray[2][2] + fScoreArray[2][3] + fScoreArray[2][4] + fScoreArray[2][5])
+    recall2 = fScoreArray[2][2] / (fScoreArray[1][2] + fScoreArray[2][2] + fScoreArray[3][2] + fScoreArray[4][2] + fScoreArray[5][2])
+    fScore2 = 2 * (precision2 * recall2) / (precision2 + recall2)
+    #print("\t2: prec: " + str(precision2) + " recall: " + str(recall2) + " f-score: " + str(fScore2))
+    
+    precision3 = fScoreArray[3][3] / (fScoreArray[3][1] + fScoreArray[3][2] + fScoreArray[3][3] + fScoreArray[3][4] + fScoreArray[3][5])
+    recall3 = fScoreArray[3][3] / (fScoreArray[1][3] + fScoreArray[2][3] + fScoreArray[3][3] + fScoreArray[4][3] + fScoreArray[5][3])
+    fScore3 = 2 * (precision3 * recall3) / (precision3 + recall3)
+    #print("\t3: prec: " + str(precision3) + " recall: " + str(recall3) + " f-score: " + str(fScore3))
+    
+    precision4 = fScoreArray[4][4] / (fScoreArray[4][1] + fScoreArray[4][2] + fScoreArray[4][3] + fScoreArray[4][4] + fScoreArray[4][5])
+    recall4 = fScoreArray[4][4] / (fScoreArray[1][4] + fScoreArray[2][4] + fScoreArray[3][4] + fScoreArray[4][4] + fScoreArray[5][4])
+    fScore4 = 2 * (precision4 * recall4) / (precision4 + recall4)
+    #print("\t4: prec: " + str(precision4) + " recall: " + str(recall4) + " f-score: " + str(fScore4))
+    
+    precision5 = fScoreArray[5][5] / (fScoreArray[5][1] + fScoreArray[5][2] + fScoreArray[5][3] + fScoreArray[5][4] + fScoreArray[5][5])
+    recall5 = fScoreArray[5][5] / (fScoreArray[1][5] + fScoreArray[2][5] + fScoreArray[3][5] + fScoreArray[4][5] + fScoreArray[5][5])
+    fScore5 = 2 * (precision5 * recall5) / (precision5 + recall5)
+    #print("\t5: prec: " + str(precision5) + " recall: " + str(recall5) + " f-score: " + str(fScore5))
+    
+    #Average the scores together
+    macroPrecision = (precision1 + precision2 + precision3 + precision4 + precision5) / 5
+    macroRecall = (recall1 + recall2 + recall3 + recall4 + recall5) / 5
+    macroFScore = (fScore1 + fScore2 + fScore3 + fScore4 + fScore5) / 5
 
-    if precision + recall == 0:
-        f_score = 0
-    else:
-        f_score = 2 * (precision * recall) / (precision + recall)
-    return {"precision": precision, "recall": recall, "f-score": f_score}
+    return {"precision": macroPrecision, "recall": macroRecall, "f-score": macroFScore}
 
-
-def test_model(input_data: str = TEST_REVIEW_NEG):
+def test_model():
     #  Load saved trained model
-    loaded_model = spacy.load("model_artifacts_3") # 1 - pos, neg , 2 - pos, neut, neg , 3 - one,..., five 
+    loaded_model = spacy.load("ManuallyLabelledModel") # MODEL NAME
+    
+    nlp = spacy.load("en_core_web_sm")
+
+    reviewIndex = 0
+    reviewTextList = []
+    ratingList = []
+    ogRatingList = []
+    scoreList = []
+    fScoreArray = [[0, 0, 0, 0, 0, 0], # Columns are true label and rows are predicted labels
+                   [0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0]]
+                   
+    fScoreArrayValues1 = []
+    precisionValues1 = []
+    recallValues1 = []
+    
+    fScoreArrayValues2 = []
+    precisionValues2 = []
+    recallValues2 = []
+    
+    fScoreArrayValues3 = []
+    precisionValues3 = []
+    recallValues3 = []
+    
+    fScoreArrayValues4 = []
+    precisionValues4 = []
+    recallValues4 = []
+    
+    fScoreArrayValues5 = []
+    precisionValues5 = []
+    recallValues5 = []
+    
+    allReviews = []
+    entry = []
+    with open('originallyLabelledReviews.json') as data_file:
+        reviews = json.loads("[" + 
+            data_file.read().replace("}\n{", "},\n{") + 
+        "]")
+    for review in reviews:
+        entry.append(review.pop('review'))
+        entry.append(review.pop('rating'))
+        allReviews.append(entry)
+        entry = []
+    
+    random.shuffle(allReviews)
+    print("Loaded Testing Reviews and Shuffled.")
+    print("Starting Metric Phase...")
+    
+    for review in allReviews:
+        #Remove Stopwords
+        #inputData = ' '.join([token.text_with_ws for token in nlp(review[0]) if not token.is_stop])
+        inputData = review[0]
+        
+        # Generate prediction
+        parsed_text = loaded_model(inputData)
+        
+        # Determine prediction to return
+        if parsed_text.cats["one"] > parsed_text.cats["two"] and parsed_text.cats["one"] > parsed_text.cats["three"] and parsed_text.cats["one"] > parsed_text.cats["four"] and parsed_text.cats["one"] > parsed_text.cats["five"]:
+            prediction = 1
+            score = parsed_text.cats["one"]
+        elif parsed_text.cats["two"] > parsed_text.cats["one"] and parsed_text.cats["two"] > parsed_text.cats["three"] and parsed_text.cats["two"] > parsed_text.cats["four"] and parsed_text.cats["two"] > parsed_text.cats["five"]:
+            prediction = 2
+            score = parsed_text.cats["two"]
+        elif parsed_text.cats["three"] > parsed_text.cats["one"] and parsed_text.cats["three"] > parsed_text.cats["two"] and parsed_text.cats["three"] > parsed_text.cats["four"] and parsed_text.cats["three"] > parsed_text.cats["five"]:
+            prediction = 3
+            score = parsed_text.cats["three"]
+        elif parsed_text.cats["four"] > parsed_text.cats["one"] and parsed_text.cats["four"] > parsed_text.cats["two"] and parsed_text.cats["four"] > parsed_text.cats["three"] and parsed_text.cats["four"] > parsed_text.cats["five"]:
+            prediction = 4
+            score = parsed_text.cats["four"]
+        else:
+            prediction = 5
+            score = parsed_text.cats["five"] 
+        
+        # Add items to lists for saving
+        reviewTextList.append(review[0])
+        ratingList.append(prediction)
+        ogRatingList.append(review[1])
+        scoreList.append(score)
+    
+        # Get TP, FP, TN, FN
+        fScoreArray[prediction][review[1]] += 1
+        
+        # Compute precision, recall, and f-score for each rating
+        precision1 = fScoreArray[1][1] / (fScoreArray[1][1] + fScoreArray[1][2] + fScoreArray[1][3] + fScoreArray[1][4] + fScoreArray[1][5] + 1e-8)
+        recall1 = fScoreArray[1][1] / (fScoreArray[1][1] + fScoreArray[2][1] + fScoreArray[3][1] + fScoreArray[4][1] + fScoreArray[5][1] + 1e-8)
+        fScore1 = 2 * (precision1 * recall1) / (precision1 + recall1 + 1e-8)
+        precisionValues1.append(precision1)
+        recallValues1.append(recall1)
+        fScoreArrayValues1.append(fScore1)
+        
+        precision2 = fScoreArray[2][2] / (fScoreArray[2][1] + fScoreArray[2][2] + fScoreArray[2][3] + fScoreArray[2][4] + fScoreArray[2][5] + 1e-8)
+        recall2 = fScoreArray[2][2] / (fScoreArray[1][2] + fScoreArray[2][2] + fScoreArray[3][2] + fScoreArray[4][2] + fScoreArray[5][2] + 1e-8)
+        fScore2 = 2 * (precision2 * recall2) / (precision2 + recall2 + 1e-8)
+        precisionValues2.append(precision2)
+        recallValues2.append(recall2)
+        fScoreArrayValues2.append(fScore2)
+        
+        precision3 = fScoreArray[3][3] / (fScoreArray[3][1] + fScoreArray[3][2] + fScoreArray[3][3] + fScoreArray[3][4] + fScoreArray[3][5] + 1e-8)
+        recall3 = fScoreArray[3][3] / (fScoreArray[1][3] + fScoreArray[2][3] + fScoreArray[3][3] + fScoreArray[4][3] + fScoreArray[5][3] + 1e-8)
+        fScore3 = 2 * (precision3 * recall3) / (precision3 + recall3 + 1e-8)
+        precisionValues3.append(precision3)
+        recallValues3.append(recall3)
+        fScoreArrayValues3.append(fScore3)
+        
+        precision4 = fScoreArray[4][4] / (fScoreArray[4][1] + fScoreArray[4][2] + fScoreArray[4][3] + fScoreArray[4][4] + fScoreArray[4][5] + 1e-8)
+        recall4 = fScoreArray[4][4] / (fScoreArray[1][4] + fScoreArray[2][4] + fScoreArray[3][4] + fScoreArray[4][4] + fScoreArray[5][4] + 1e-8)
+        fScore4 = 2 * (precision4 * recall4) / (precision4 + recall4 + 1e-8)
+        precisionValues4.append(precision4)
+        recallValues4.append(recall4)
+        fScoreArrayValues4.append(fScore4)
+        
+        precision5 = fScoreArray[5][5] / (fScoreArray[5][1] + fScoreArray[5][2] + fScoreArray[5][3] + fScoreArray[5][4] + fScoreArray[5][5] + 1e-8)
+        recall5 = fScoreArray[5][5] / (fScoreArray[1][5] + fScoreArray[2][5] + fScoreArray[3][5] + fScoreArray[4][5] + fScoreArray[5][5] + 1e-8)
+        fScore5 = 2 * (precision5 * recall5) / (precision5 + recall5 + 1e-8)
+        precisionValues5.append(precision5)
+        recallValues5.append(recall5)
+        fScoreArrayValues5.append(fScore5)
+        
+    # Print for user
+    total = 0
+    for row in fScoreArray:
+        for elem in row:
+            print(elem, end=' ')
+            total += elem
+        print()
+    
+    print("\n      1 : " + str(precisionValues1[-1]) + "\t" + str(recallValues1[-1]) + "\t" + str(fScoreArrayValues1[-1]))
+    print("      2 : " + str(precisionValues2[-1]) + "\t" + str(recallValues2[-1]) + "\t" + str(fScoreArrayValues2[-1]))
+    print("      3 : " + str(precisionValues3[-1]) + "\t" + str(recallValues3[-1]) + "\t" + str(fScoreArrayValues3[-1]))
+    print("      4 : " + str(precisionValues4[-1]) + "\t" + str(recallValues4[-1]) + "\t" + str(fScoreArrayValues4[-1]))
+    print("      5 : " + str(precisionValues5[-1]) + "\t" + str(recallValues5[-1]) + "\t" + str(fScoreArrayValues5[-1]))
+
+    precision = (precisionValues1[-1] + precisionValues2[-1] + precisionValues3[-1] + precisionValues4[-1] + precisionValues5[-1]) / 5
+    recall = (recallValues1[-1] + recallValues2[-1] + recallValues3[-1] + recallValues4[-1] + recallValues5[-1]) / 5
+    fScore = (fScoreArrayValues1[-1] + fScoreArrayValues2[-1] + fScoreArrayValues3[-1] + fScoreArrayValues4[-1] + fScoreArrayValues5[-1]) / 5
+    print("Combined: " + str(precision) + "\t" + str(recall) + "\t" + str(fScore))
+    print("Accuracy: " + str( (fScoreArray[1][1] + fScoreArray[2][2] + fScoreArray[3][3] + fScoreArray[4][4] + fScoreArray[5][5]) / total))
+    
+    # Save Review Information to .csv
+    df = pd.DataFrame(data={"Review Text": reviewTextList, "Model Rating": ratingList, "Reviewer Rating": ogRatingList, "Score": scoreList})
+    df.to_csv("./originalReviews.csv", sep=',', index=False)
+    
+    # Save metrics to .csv
+    df = pd.DataFrame(data={"Precision 1": precisionValues1, "Recall 1": recallValues1, "F-Score 1": fScoreArrayValues1, "Precision 2": precisionValues2, "Recall 2": recallValues2, "F-Score 2": fScoreArrayValues2, "Precision 3": precisionValues3, "Recall 3": recallValues3, "F-Score 3": fScoreArrayValues3, "Precision 4": precisionValues4, "Recall 4": recallValues4, "F-Score 4": fScoreArrayValues4, "Precision 5": precisionValues5, "Recall 5": recallValues5, "F-Score 5": fScoreArrayValues5})
+    df.to_csv("./originalMetrics.csv", sep = ',', index = False)
+    print("Done Metric Phase.")
+
+
+def test_model_single():
+    #  Load saved trained model
+    loaded_model = spacy.load("ManuallyLabelledModel") # MODEL NAME
+    
+    # Get review from user
+    print("Enter Review Text: ")
+    input_data = str(input())
     
     # removes stopwords from input data
     nlp = spacy.load("en_core_web_sm")
     new_input_data = ' '.join([token.text_with_ws for token in nlp(input_data) if not token.is_stop])
     
-    print("Text w/o stopwords: " + new_input_data)
+    print(new_input_data)
     
     # Generate prediction
-    parsed_text = loaded_model(new_input_data)
-    # Determine prediction to return
-    print()
-    print("one: " + str(parsed_text.cats['one']))
-    print("two: " + str(parsed_text.cats['two']))
-    print("three: " + str(parsed_text.cats['three']))
-    print("four: " + str(parsed_text.cats['four']))
-    print("five: " + str(parsed_text.cats['five']))
-    print() 
+    parsed_text = loaded_model(input_data)
     
+    """
+    print()
+    print("1: " + str(parsed_text.cats['one']))
+    print("2: " + str(parsed_text.cats['two']))
+    print("3: " + str(parsed_text.cats['three']))
+    print("4: " + str(parsed_text.cats['four']))
+    print("5: " + str(parsed_text.cats['five']))
+    print() 
+    """
+    
+    # Determine prediction to return
     if parsed_text.cats["one"] > parsed_text.cats["two"] and parsed_text.cats["one"] > parsed_text.cats["three"] and parsed_text.cats["one"] > parsed_text.cats["four"] and parsed_text.cats["one"] > parsed_text.cats["five"]:
-        prediction = "1 Star"
+        prediction = "1/5"
         score = parsed_text.cats["one"]
     elif parsed_text.cats["two"] > parsed_text.cats["one"] and parsed_text.cats["two"] > parsed_text.cats["three"] and parsed_text.cats["two"] > parsed_text.cats["four"] and parsed_text.cats["two"] > parsed_text.cats["five"]:
-        prediction = "2 Star"
+        prediction = "2/5"
         score = parsed_text.cats["two"]
     elif parsed_text.cats["three"] > parsed_text.cats["one"] and parsed_text.cats["three"] > parsed_text.cats["two"] and parsed_text.cats["three"] > parsed_text.cats["four"] and parsed_text.cats["three"] > parsed_text.cats["five"]:
-        prediction = "3 Star"
+        prediction = "3/5"
         score = parsed_text.cats["three"]
     elif parsed_text.cats["four"] > parsed_text.cats["one"] and parsed_text.cats["four"] > parsed_text.cats["two"] and parsed_text.cats["four"] > parsed_text.cats["three"] and parsed_text.cats["four"] > parsed_text.cats["five"]:
-        prediction = "4 Star"
+        prediction = "4/5"
         score = parsed_text.cats["four"]
     else:
-        prediction = "5 Star"
+        prediction = "5/5"
         score = parsed_text.cats["five"] 
 
+    # Show results of the prediction
     print(
-        f"Review text: {input_data}\nPredicted sentiment: {prediction}"
-        f"\tScore: {score}"
+        f"----\nPredicted Rating: {prediction}"
+        f"\tScore: {score}\n----"
     )
 
-#
-# - if time we can create our own training folder of reviews and sort them with 
-#   positive or negative reviews to train the system
-#
-def load_training_data(
-    data_directory: str = "dataset/train", split: float = 0.8, limit: int = 0
+
+def load_training_data( 
+    data_directory: str = "C:\\Users\\nimpe\\Google Drive\\LU - Courses\\ESOF 2918\\Reviewer Labelled\\train", 
+    split: float = 0.8, limit: int = 0 
 ) -> tuple:
+    nlp = spacy.load("en_core_web_sm")
     # Load from files
     reviews = []
     for label in ["one", "two", "three", "four", "five"]:
@@ -274,8 +391,11 @@ def load_training_data(
             if review.endswith(".txt"):
                 with open(f"{labeled_directory}/{review}", encoding="utf8") as f:
                     text = f.read()
-                    text = text.replace("<br />", "\n\n")
-                    if text.strip():
+                    text = text.replace("<br />", " ")
+                    text = text.replace("\n", " ")
+                    #stopwordlessText = ' '.join([token.text_with_ws for token in nlp(text) if not token.is_stop])
+                    stopwordlessText = text
+                    if stopwordlessText.strip():
                         spacy_label = {
                             "cats": {
                                 "one": "one" == label,
@@ -285,7 +405,7 @@ def load_training_data(
                                 "five": "five" == label,
                             }
                         }
-                        reviews.append((text, spacy_label))
+                        reviews.append((stopwordlessText, spacy_label))
     random.shuffle(reviews)
 
     if limit:
@@ -300,9 +420,9 @@ if __name__ == "__main__":
         train, test = load_training_data(limit=2000)
         print("Training model...")
         train_model(train, test)
-        
-    if sys.argv[1] == 'test' or sys.argv[1] == 'train':
-        #df = pd.DataFrame(eval_list)
-        #pd.DataFrame.plot(df)
-        print("Testing model...")
-        test_model()
+    elif sys.argv[1] == 'test':
+        if sys.argv[2] == 'batch':
+            print("Testing model...")
+            test_model()
+        elif sys.argv[2] == 'single':
+            test_model_single()
