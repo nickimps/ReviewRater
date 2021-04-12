@@ -1,0 +1,12 @@
+{
+  "architecture":"simple_cnn",
+  "labels":[
+    "one",
+    "two",
+    "three",
+    "four",
+    "five"
+  ],
+  "pretrained_vectors":null,
+  "pretrained_dims":null
+}
