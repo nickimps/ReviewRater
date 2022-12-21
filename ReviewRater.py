@@ -242,7 +242,7 @@ def test_model():
     ogRatingList = []
     scoreList = []
     fScoreArray = [[0, 0, 0, 0, 0, 0],  # Columns are true label and rows are predicted labels
-                   [0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 1, 0],
                    [0, 0, 0, 0, 0, 0],
                    [0, 0, 0, 0, 0, 0],
                    [0, 0, 0, 0, 0, 0],
