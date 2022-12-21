@@ -21,6 +21,8 @@ import pandas as pd
 # - trains a textcategorizer model and saves it to the local storage
 ##
 
+# This is a test
+
 
 def train_model(training_data: list, test_data: list, iterations: int = 20) -> None:
     # Build the pipeline that we are going to be using
@@ -39,6 +41,8 @@ def train_model(training_data: list, test_data: list, iterations: int = 20) -> N
     textcat.add_label("three")
     textcat.add_label("four")
     textcat.add_label("five")
+
+    # Another change is done here
 
     # Train only textcat model
     training_excluded_pipes = [
